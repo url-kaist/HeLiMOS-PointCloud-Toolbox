@@ -1,4 +1,12 @@
-# HeLiPR Pointcloud Toolbox
+# HeLiMOS Pointcloud Toolbox
+
+This repository is from [HeLiPR-Pointcloud-Toolbox](https://github.com/minwoo0611/HeLiPR-Pointcloud-Toolbox)
+
+The source codes will be updated soon! (by Aug.)
+
+---
+
+(Original README.md)
 
 ## Overview
 The HeLiPR Pointcloud Toolbox is a sophisticated software suite tailored for processing and analyzing the HeLiPR (Heterogeneous LiDAR Place Recognition) dataset. This toolbox offers robust functionalities for manipulating point cloud data from various LiDAR sensors, making it an essential tool for researchers in place recognition, SLAM (Simultaneous Localization and Mapping), and other related fields.
