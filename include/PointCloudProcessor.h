@@ -5,11 +5,12 @@
 #include "visualizer.h"
 
 using namespace ov_core;
+using namespace std;
 
 class PointCloudProcessor
 {
 public:
-    PointCloudProcessor();
+    PointCloudProcessor(YAML::Node &config, int sensorType);
     ~PointCloudProcessor();
 
     BsplineSE3 bsplineSE3;
@@ -25,6 +26,9 @@ public:
     std::vector<pcl::PointCloud<AevaPointXYZIRT>> vecAeva;
 
     std::vector<Eigen::VectorXd> trajPoints;
+    std::vector<Eigen::Matrix4f> gt_poses_;
+    std::vector<long long> timestamp_lists_;
+    
     Point3D lastPoint;
     int keyIndex = 0;
     int numBins = 0;
@@ -33,6 +37,13 @@ public:
     std::string savePath;
     std::string trajPath;
     std::string saveFile;
+
+    //* Added for HeLiMOS
+    std::string savePathLiDAR;
+    std::string savePathPose;
+    std::string savePathCalib;
+    std::ofstream foutPose; // for poses.txt
+    std::ofstream foutCalib; // for calib.txt
 
     LiDARType LiDAR = OUSTER;    // Ouster, Velodyne, Livox, Aeva (Same as the folder name)
     int distanceThreshold = 10;  // saved pointcloud distanceThreshold (m) (default: 10, >= 0)
@@ -49,7 +60,7 @@ public:
     bool cropFlag = true;        // crop pointclouds before processing (default: true)
     float cropSize = 100.0f;      // crop size (m) (default: 100.0f)
 
-    void gatherInput();
+    void gatherInput(YAML::Node &config, int sensorType);
     void displayBanner();
     void displayInput();
 
@@ -77,6 +88,9 @@ public:
     void processFile(const std::string &filename);
     void loadAndProcessBinFiles();
     void loadTrajectory();
+    void loadTrajectoryAndPoses();
+
+    void getTransformedCloud(const int i, const Eigen::Matrix4f T_criterion, pcl::PointCloud<pcl::PointXYZI> &transformed, const std::string stage="merge");
 };
 
 #endif

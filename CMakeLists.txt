@@ -33,13 +33,24 @@ set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${OpenMP_C_FLAGS}")
 set(PCL_DIR "/usr/lib/x86_64-linux-gnu/cmake/pcl")
 
 # Source files
-set(SOURCE_FILES src/pointSaver.cpp src/visualizer.cpp src/PointCloudProcessor.cpp src/utility.cpp src/BsplineSE3.cpp)
+set(SAVER_FILES src/pointSaver.cpp src/visualizer.cpp src/PointCloudProcessor.cpp src/utility.cpp src/BsplineSE3.cpp)
+set(MERGER_FILES src/pointMerger.cpp src/visualizer.cpp src/PointCloudProcessor.cpp src/utility.cpp src/BsplineSE3.cpp)
 
 # Add executable
-add_executable(helipr_tool ${SOURCE_FILES})
+add_executable(helimos_saver ${SAVER_FILES})
 
 # Link libraries
-target_link_libraries(helipr_tool 
+target_link_libraries(helimos_saver 
+  ${catkin_LIBRARIES} 
+  ${PCL_LIBRARIES} 
+  ${EIGEN3_LIBRARIES}
+  ${YAML_CPP_LIBRARIES} 
+)
+
+add_executable(helimos_merger ${MERGER_FILES})
+
+# Link libraries
+target_link_libraries(helimos_merger 
   ${catkin_LIBRARIES} 
   ${PCL_LIBRARIES} 
   ${EIGEN3_LIBRARIES}

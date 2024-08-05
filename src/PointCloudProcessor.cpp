@@ -1,13 +1,13 @@
 #include "PointCloudProcessor.h"
 
-PointCloudProcessor::PointCloudProcessor()
+PointCloudProcessor::PointCloudProcessor(YAML::Node &config, int sensorType)
 {
   displayBanner();
-  gatherInput();
+  gatherInput(config, sensorType);
   displayInput();
   visualizer.progressBar(0, 1, "", false);
-  loadTrajectory();
-  loadAndProcessBinFiles();
+  // loadTrajectoryAndPoses();
+  
 }
 
 PointCloudProcessor::~PointCloudProcessor() {}
@@ -25,17 +25,16 @@ void PointCloudProcessor::displayBanner()
   const int bannerWidth = 80; // Adjust this width as needed
 
   // Define the banner text
-  const std::string title = "HeLiPR Point Cloud Undistortion and Accumulation Tool";
-  const std::string description = "This utility facilitates the undistortion of .bin point cloud files, "
-                                  "converts them to .pcd format, and supports point cloud accumulation. "
-                                  "Please follow the prompts to set up your processing parameters.";
+  const std::string title = "HeLiMOS Point Cloud Undistortion and Merging Tool";
+  const std::string description = "This file is a utility designed to undistort the point clouds, "
+                                  "from the HeLiPR dataset in order to create the HeLiMOS dataset. "
+                                  "By running this file, you will generate point cloud files "
+                                  "that conform to the SemanticKITTI format, as well as the poses.txt and calib.txt files.";
 
-  const std::string inputInfo = "Input: .bin files, trajectory file\n"
-                                "Output: .pcd files\n"
-                                "1. Bin files from HeLiPR should be needed.\n"
-                                "2. trajectory file is tum form made by transformINStoLiDAR.py.";
+  const std::string inputInfo = "Input: {timestamp}.bin files, TUM format gt poses file.\n"
+                                "Output: {index}.bin files, SemanticKITTI format gt poses file, calib.txt file.\n";
 
-  const std::string maintainerInfo = "Maintainer: Minwoo Jung (moonshot@snu.ac.kr, SNU RPM Lab), Revised: 2024/03/19";
+  const std::string maintainerInfo = "Maintainer: Seoyeon Jang (9uantum01@kaist.ac.kr, Urban Robotics Lab), Revised: 2024/08/01";
 
   int titlePadding = (bannerWidth - title.length()) / 2;
   titlePadding = titlePadding < 0 ? 0 : titlePadding; // Ensure no negative padding
@@ -73,13 +72,41 @@ void PointCloudProcessor::displayBanner()
   std::cout << cyan << std::string(bannerWidth, '=') << reset << "\n\n";
 }
 
-void PointCloudProcessor::gatherInput()
+void PointCloudProcessor::gatherInput(YAML::Node &config, int sensorType)
 {
   // config from yaml file
-  YAML::Node config = YAML::LoadFile("../config/config.yaml");
-  binPath = config["Path"]["binPath"].as<std::string>();
-  trajPath = config["Path"]["trajPath"].as<std::string>();
-  savePath = config["Path"]["savePath"].as<std::string>();
+  std::string sensorString;
+  int LiDARTypeInt;
+
+  switch (sensorType)
+  {
+  case 0:
+    sensorString = "Ouster";
+    LiDARTypeInt = 0;
+    break;
+  case 1:
+    sensorString = "Velodyne";
+    LiDARTypeInt = 1;
+    break;
+  case 2:
+    sensorString = "Avia";
+    LiDARTypeInt = 2;
+    break;
+  case 3:
+    sensorString = "Aeva";
+    LiDARTypeInt = 3;
+    break;
+  }
+  //* Load & Save Path
+  // YAML::Node config = YAML::LoadFile("../config/config-helimos.yaml");
+  binPath = config["Path"]["binPath"].as<std::string>() + sensorString + "/";
+  trajPath = config["Path"]["trajPath"].as<std::string>() + sensorString + "_gt.txt";
+  savePath = config["Path"]["savePath"].as<std::string>() + sensorString + "/";
+  savePathLiDAR = savePath + "scans/";
+  savePathPose = savePath + "poses.txt";
+  savePathCalib = savePath + "calib.txt";
+
+  // * Parameters for saving
   undistortFlag = config["Undistort"]["undistortFlag"].as<bool>();
   numIntervals = config["Undistort"]["numIntervals"].as<int>();
   downSampleFlag = config["Save"]["downSampleFlag"].as<bool>();
@@ -90,7 +117,7 @@ void PointCloudProcessor::gatherInput()
   saveAs = config["Save"]["saveAs"].as<std::string>();
   cropFlag = config["Save"]["cropFlag"].as<bool>();
   cropSize = config["Save"]["cropSize"].as<float>();
-  int LiDARTypeInt = config["Save"]["LiDAR"].as<int>();
+
   distanceThreshold = config["Save"]["distanceThreshold"].as<int>();
   accumulatedSize = config["Save"]["accumulatedSize"].as<int>();
   accumulatedStep = config["Save"]["accumulatedStep"].as<int>();
@@ -113,6 +140,17 @@ void PointCloudProcessor::gatherInput()
     std::cout << yellow << "The path does not exist. Creating a new directory." << reset << std::endl;
     // Attempt to create the directory
     if (!std::filesystem::create_directory(savePath))
+    {
+      std::cout << red << "Failed to create the directory. Please check config.yaml." << reset << std::endl;
+      exit(0);
+    }
+  }
+
+  if (!std::filesystem::exists(savePathLiDAR))
+  {
+    std::cout << yellow << "The path does not exist. Creating a new directory." << reset << std::endl;
+    // Attempt to create the directory
+    if (!std::filesystem::create_directory(savePathLiDAR))
     {
       std::cout << red << "Failed to create the directory. Please check config.yaml." << reset << std::endl;
       exit(0);
@@ -187,6 +225,7 @@ void PointCloudProcessor::displayInput()
   std::cout << green << std::left << std::setw(width) << "binPath:" << binPath << reset << std::endl;
   std::cout << green << std::left << std::setw(width) << "trajPath:" << trajPath << reset << std::endl;
   std::cout << green << std::left << std::setw(width) << "savePath:" << savePath << reset << std::endl;
+  std::cout << green << std::left << std::setw(width) << "savePathLiDAR:" << savePathLiDAR << reset << std::endl;
   std::string lidarTypeStr = visualizer.lidarTypeToString(LiDAR);
   std::cout << green << std::left << std::setw(width) << "LiDAR:" << lidarTypeStr << reset << std::endl;
   std::cout << green << std::left << std::setw(width) << "Distance Threshold:" << distanceThreshold << reset << std::endl;
@@ -385,23 +424,24 @@ void PointCloudProcessor::accumulateScans(std::vector<pcl::PointCloud<T>> &vecCl
         normalizePointCloud(sampledCloud, cropSize);
 
       if (saveName == "Index")
-        saveFile = savePath + std::to_string(keyIndex - accumulatedSize);
+        saveFile = savePathLiDAR + padZeros(keyIndex - accumulatedSize, 6);
       else if (saveName == "Timestamp")
-        saveFile = savePath + scanTimestamps[0];
+        saveFile = savePathLiDAR + scanTimestamps[0];
 
       visualizer.progressBar(keyIndex, numBins, saveFile + "." + saveAs, true);
       if (saveAs == "bin")
       {
-        std::ofstream file;
-        file.open(saveFile + ".bin", std::ios::out | std::ios::binary);
-        for (auto &point : sampledCloud->points)
-        {
-          file.write(reinterpret_cast<const char *>(&point.x), sizeof(float));
-          file.write(reinterpret_cast<const char *>(&point.y), sizeof(float));
-          file.write(reinterpret_cast<const char *>(&point.z), sizeof(float));
-          file.write(reinterpret_cast<const char *>(&point.intensity), sizeof(float));
-        }
-        file.close();
+        saveToBinFile(saveFile + ".bin", *sampledCloud);
+        // std::ofstream file;
+        // file.open(saveFile + ".bin", std::ios::out | std::ios::binary);
+        // for (auto &point : sampledCloud->points)
+        // {
+        //   file.write(reinterpret_cast<const char *>(&point.x), sizeof(point.x));
+        //   file.write(reinterpret_cast<const char *>(&point.y), sizeof(point.y));
+        //   file.write(reinterpret_cast<const char *>(&point.z), sizeof(point.z));
+        //   file.write(reinterpret_cast<const char *>(&point.intensity), sizeof(point.intensity));
+        // }
+        // file.close();
       }
       else if (saveAs == "pcd")
         pcdWriter.writeBinary(saveFile + ".pcd", *sampledCloud);
@@ -488,7 +528,7 @@ void PointCloudProcessor::processFile(const std::string &filename)
   currPoint.y = pStart(1);
   currPoint.z = pStart(2);
 
-  if (success_field)
+  // if (success_field) // uncomment it to save same number of scans & poses with LiDAR_gt
   {
     scanPoints.push_back(currPoint);
     scanQuat.push_back(qStart);
@@ -513,7 +553,7 @@ void PointCloudProcessor::processFile(const std::string &filename)
     case OUSTER:
       if (!exitFlag && undistortFlag)
       {
-#pragma omp parallel for
+        #pragma omp parallel for
         for (auto &point : scanOuster->points)
         {
           double timestamp = timeStart + point.t / float(1000000000);
@@ -525,7 +565,7 @@ void PointCloudProcessor::processFile(const std::string &filename)
     case VELODYNE:
       if (!exitFlag && undistortFlag)
       {
-#pragma omp parallel for
+        #pragma omp parallel for
         for (auto &point : scanVelodyne->points)
         {
           double timestamp = timeStart + point.time;
@@ -537,7 +577,7 @@ void PointCloudProcessor::processFile(const std::string &filename)
     case LIVOX:
       if (!exitFlag && undistortFlag)
       {
-#pragma omp parallel for
+        #pragma omp parallel for
         for (auto &point : scanLivox->points)
         {
           double timestamp = timeStart + point.offset_time / float(1000000000);
@@ -549,7 +589,7 @@ void PointCloudProcessor::processFile(const std::string &filename)
     case AEVA:
       if (!exitFlag && undistortFlag)
       {
-#pragma omp parallel for
+        #pragma omp parallel for
         for (auto &point : scanAeva->points)
         {
           double timestamp = timeStart + point.time_offset_ns / float(1000000000);
@@ -581,6 +621,9 @@ void PointCloudProcessor::loadAndProcessBinFiles()
     }
     closedir(dir);
   }
+  
+  writeCalibrationFile(savePathCalib);
+  foutPose.open(savePathPose);
 
   std::sort(binFiles.begin(), binFiles.end());
   Point3D lastPoint;
@@ -588,6 +631,7 @@ void PointCloudProcessor::loadAndProcessBinFiles()
   lastPoint.y = -999;
   lastPoint.z = -999;
   numBins = binFiles.size();
+  
 
   for (const std::string &filename : binFiles)
   {
@@ -608,7 +652,16 @@ void PointCloudProcessor::loadAndProcessBinFiles()
       accumulateScans(vecAeva, lastPoint);
       break;
     }
+    if(keyIndex - accumulatedSize < 0)
+      continue; // * need to be refactored
+
+    Eigen::Matrix4f tf4x4 = gt_poses_[keyIndex - accumulatedSize];
+    foutPose << tf4x4(0, 0) << " " << tf4x4(0, 1) << " " << tf4x4(0, 2) << " " << tf4x4(0, 3) << " "
+              << tf4x4(1, 0) << " " << tf4x4(1, 1) << " " << tf4x4(1, 2) << " " << tf4x4(1, 3) << " "
+              << tf4x4(2, 0) << " " << tf4x4(2, 1) << " " << tf4x4(2, 2) << " " << tf4x4(2, 3) << std::endl; 
   }
+
+  foutPose.close();
 }
 
 void PointCloudProcessor::loadTrajectory()
@@ -629,4 +682,56 @@ void PointCloudProcessor::loadTrajectory()
   }
   file.close();
   bsplineSE3.feed_trajectory(trajPoints);
+}
+
+void PointCloudProcessor::loadTrajectoryAndPoses()
+{
+  std::string line;
+  std::ifstream file(trajPath);
+
+  gt_poses_.clear();
+  gt_poses_.reserve(100000);
+
+  while (std::getline(file, line))
+  {
+    // * 1. load poses
+    const auto & [timestamp, pose] = splitLine(line, ' ');
+    Eigen::Matrix4f tf4x4_sensor = Eigen::Matrix4f::Identity();
+    vec2tf4x4(pose, tf4x4_sensor);
+    gt_poses_.push_back(tf4x4_sensor);
+    timestamp_lists_.push_back(timestamp);
+
+    // * 2. load trajectory
+    std::istringstream iss(line);
+    Eigen::VectorXd point(8);
+    if (!(iss >> point(0) >> point(1) >> point(2) >> point(3) >> point(4) >> point(5) >> point(6) >> point(7)))
+    {
+      break;
+    }
+    point(0) *= 1e-9;
+    trajPoints.push_back(point);
+  }
+  file.close();
+  bsplineSE3.feed_trajectory(trajPoints);
+
+}
+
+void PointCloudProcessor::getTransformedCloud(const int i, const Eigen::Matrix4f T_criterion, pcl::PointCloud<pcl::PointXYZI> &transformed, const std::string stage) {
+  // An already deskewed file is loaded
+  pcl::PointCloud<pcl::PointXYZI>::Ptr cloud(new pcl::PointCloud<pcl::PointXYZI>);
+  // pcl::PointCloud<pcl::PointXYZI>::Ptr cloud_extrinsic(new pcl::PointCloud<pcl::PointXYZI>);
+  transformed.clear();
+  if (i < timestamp_lists_.size()) {
+    loadCloud(i, savePathLiDAR, "bin", *cloud);
+  } else {
+    return;
+  }
+
+  const auto T_diff = T_criterion.inverse() * gt_poses_.at(i);
+  if (stage == "merge") { 
+    std::vector<int> indices;
+    pcl::removeNaNFromPointCloud(*cloud, *cloud, indices);
+  } 
+  pcl::transformPointCloud(*cloud, transformed, T_diff);
+  // transformed = *cloud_extrinsic;
 }

@@ -1,0 +1,29 @@
+Path:
+  binPath: "/home/se0yeon00/kmos_bench/sequences/KAIST05/LiDAR/"
+  trajPath: "/home/se0yeon00/kmos_bench/sequences/KAIST05/LiDAR_GT/"
+  savePath: "/home/se0yeon00/helimos/"
+
+Undistort:
+  numIntervals: 250
+  undistortFlag: True 
+
+Save:
+  downSampleFlag: False      # ! should be False in HeLiMOS
+  downSampleVoxelSize: 0.1   # ! Not using in HeLiMOS
+  downsamplePointSize: 8192  # ! Not using in HeLiMOS
+  normalizeFlag: False        # True or False, make the point cloud to be in the unit sphere
+
+  saveAs: "bin"       # "bin" or "pcd"
+  saveName: "Index"   # "Index" or "Timestamp"
+  
+  cropFlag: False # True or False, crop the point cloud
+  cropSize: 100 # meter, -100 ~ 100
+  
+  # LiDAR: 3   # ? 0: OUSTER, 1: VELODYNE, 2: LIVOX, 3: AEVA, But You don't need to set this in this repo
+  distanceThreshold: 0 # keyFrame selection, meter
+  
+  # if accumulatedSize = 3, accumulatedStep = 4, then 0~2, 4~6, 8~10, ...
+  accumulatedSize: 1   # Frame Accumulation, 1: no accumulation
+  accumulatedStep: 1   # Frame Skip, 1: no skip, 2: every 2 frames, 3: every 3 frames, ...
+  
+

@@ -149,4 +149,67 @@ void down_sampling_voxel(pcl::PointCloud<pcl::PointXYZI> &pl_feat,
 
 void downsample_to_target_size(pcl::PointCloud<pcl::PointXYZI> &pl_feat, size_t target_pc_size);
 
+// ** added for HeLIMOS
+void writeCalibrationFile(const std::string &calibPath);
+void vec2tf4x4(const std::vector<float> &pose, Eigen::Matrix4f &tf4x4);
+std::pair<long long, std::vector<float>> splitLine(std::string input, char delimiter);
+
+template<typename T>
+void saveToBinFile(const std::string& filename, const pcl::PointCloud<T>& cloud) {
+    std::ofstream outFile(filename, std::ios::out | std::ios::binary);
+    if (!outFile) {
+        std::cerr << "Cannot open file for writing: " << filename << std::endl;
+        return;
+    }
+
+    for (const auto& point : cloud) {
+        outFile.write(reinterpret_cast<const char*>(&point.x), sizeof(point.x));
+        outFile.write(reinterpret_cast<const char*>(&point.y), sizeof(point.y));
+        outFile.write(reinterpret_cast<const char*>(&point.z), sizeof(point.z));
+        if (std::is_same<T, pcl::PointXYZ>::value) {
+          outFile.write(reinterpret_cast<const char *>(0), sizeof(point.z));
+        } else if (std::is_same<T, pcl::PointXYZI>::value) {
+          outFile.write(reinterpret_cast<const char *>(&point.intensity), sizeof(point.intensity));
+        }
+    }
+    outFile.close();
+}
+
+template<typename T>
+int loadCloud(size_t idx, std::string cloud_dir, std::string cloud_format, pcl::PointCloud<T> &cloud)
+{
+  if (cloud_dir.back() == '/') { cloud_dir.pop_back(); }
+  std::string filename = cloud_dir + "/" + padZeros(idx, 6) + "." + cloud_format; //(boost::format("%s/%06d.%s") % cloud_dir % idx % cloud_format).str();
+  FILE   *file    = fopen(filename.c_str(), "rb");
+  if (!file) {
+    std::cerr << "Error: failed to load " << filename << std::endl;
+    return -1;
+  }
+
+  std::vector<float> buffer(2000000);
+  size_t    num_points =
+                fread(reinterpret_cast<char *>(buffer.data()), sizeof(float), buffer.size(), file) /
+                4;
+  fclose(file);
+
+  cloud.resize(num_points);
+  if (std::is_same<T, pcl::PointXYZ>::value) {
+    for (int i = 0; i < num_points; i++) {
+      auto &pt = cloud.at(i);
+      pt.x = buffer[i * 4];
+      pt.y = buffer[i * 4 + 1];
+      pt.z = buffer[i * 4 + 2];
+    }
+  } else if (std::is_same<T, pcl::PointXYZI>::value) {
+    for (int i = 0; i < num_points; i++) {
+      auto &pt = cloud.at(i);
+      pt.x         = buffer[i * 4];
+      pt.y         = buffer[i * 4 + 1];
+      pt.z         = buffer[i * 4 + 2];
+      pt.intensity = buffer[i * 4 + 3];
+    }
+  }
+  return 0;
+}
+
 #endif // UTILITY_H

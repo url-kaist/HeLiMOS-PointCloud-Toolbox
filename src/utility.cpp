@@ -149,3 +149,43 @@ void down_sampling_voxel(pcl::PointCloud<pcl::PointXYZI> &pl_feat,
     i++;
   }
 }
+
+void writeCalibrationFile(const std::string &calibPath){
+    std::ofstream foutCalib(calibPath);
+    foutCalib << "P0: 1.0 0.0 0.0 0.0 0.0 1.0 0.0 0.0 0.0 0.0 1.0 0.0" << std::endl;
+    foutCalib << "P1: 1.0 0.0 0.0 0.0 0.0 1.0 0.0 0.0 0.0 0.0 1.0 0.0" << std::endl;
+    foutCalib << "P2: 1.0 0.0 0.0 0.0 0.0 1.0 0.0 0.0 0.0 0.0 1.0 0.0" << std::endl;
+    foutCalib << "P3: 1.0 0.0 0.0 0.0 0.0 1.0 0.0 0.0 0.0 0.0 1.0 0.0" << std::endl;
+    foutCalib << "Tr: 1.0 0.0 0.0 0.0 0.0 1.0 0.0 0.0 0.0 0.0 1.0 0.0" << std::endl;
+    foutCalib.close();
+}
+
+
+void vec2tf4x4(const std::vector<float> &pose, Eigen::Matrix4f &tf4x4)
+{
+  Eigen::Matrix3f mat3 = Eigen::Quaternionf(pose[6], pose[3], pose[4], pose[5]).toRotationMatrix();
+  tf4x4 << mat3(0, 0), mat3(0, 1), mat3(0, 2), pose[0],
+            mat3(1, 0), mat3(1, 1), mat3(1, 2), pose[1],
+            mat3(2, 0), mat3(2, 1), mat3(2, 2), pose[2],
+            0, 0, 0, 1;
+}
+
+std::pair<long long, std::vector<float>> splitLine(std::string input, char delimiter) {
+    // The most front part: timestamp should be long long!!!
+    std::vector<float> answer;
+    std::stringstream  ss(input);
+    std::string        temp;
+
+    long long timestamp;
+    bool check_ts = true;
+    while (getline(ss, temp, delimiter)) {
+        if (check_ts) {
+            timestamp = stoll(temp);
+            check_ts  = false;
+            continue;
+        }
+        answer.push_back(stof(temp));
+    }
+    return {timestamp, answer};
+}
+
