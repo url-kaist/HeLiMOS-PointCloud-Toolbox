@@ -1,10 +1,57 @@
-# HeLiMOS Pointcloud Toolbox
+<div align="center">
+    <h1>HeLiMOS Pointcloud Toolobox</h1>
+    <a href="https://github.com/url-kaist/HeLiMOS-PointCloud-Toolbox"><img src="https://img.shields.io/badge/-C++-blue?logo=cplusplus" /></a>
+    <a href="https://github.com/url-kaist/HeLiMOS-PointCloud-Toolbox"><img src="https://img.shields.io/badge/Linux-FCC624?logo=linux&logoColor=black" /></a>
+    <a href="https://sites.google.com/view/heliprdataset"><img src="https://img.shields.io/badge/HeLiPR_Dataset-4285F4?style=for-the-badge&logo=google-cloud&logoColor=white" height="21"/></a>
+    <!-- a href="https://ieeexplore.ieee.org/document/9981561"><img src="https://img.shields.io/badge/DOI-10.1109/IROS47612.2022.9981561-004088.svg"/-->
+    <br />
+    <br />
+    <a href=https://urobot.kaist.ac.kr/>Video</a>
+    <span>&nbsp;&nbsp;•&nbsp;&nbsp;</span>
+    <a href="https://urobot.kaist.ac.kr/">Install</a>
+    <span>&nbsp;&nbsp;•&nbsp;&nbsp;</span>
+     <a href=https://urobot.kaist.ac.kr/>Paper</a>
+    <span>&nbsp;&nbsp;•&nbsp;&nbsp;</span>
+    <a href=https://urobot.kaist.ac.kr/>Contact Us</a>
+  <br />
+  <br />
+  <p align="center"><img src=image/overview.png alt="animated" /></p>
 
-## Overview
-The HeLiMOS pointcloud toolbox is a data processing software for Moving Object Segmentation in the HeLiPR dataset. It includes an effective merging-and-splitting-based approach for labeling four Heterogeneous LiDARs. The program is mainly composed of three modules: `helimos_saver`, `helimos_merger`, and `helimos_propagator`.   Additionally, 
+  [The HeLiMOS pointcloud toolbox][Projectlink] is a data processing software for moving object segmentation (MOS) in the HeLiPR dataset.<br>
+  It includes an effective merging-and-splitting-based approach ((a) and (g) in the upper figure) for labeling four heterogeneous LiDAR sensors.
+</div>
 
-- For the HeLiPR dataset, visit: [HeLiPR Dataset Site](https://sites.google.com/view/heliprdataset)
+[YouTubeLInk]: https://urobot.kaist.ac.kr/
+[arXivlink]: https://urobot.kaist.ac.kr/
+[Proejectlink]: https://urobot.kaist.ac.kr/
+[Datasetlink]: https://urobot.kaist.ac.kr/
 
+## :package: Installation
+> What we need are just minimal dependencies.
+
+```commandline
+sudo apt-get install g++ build-essential libpcl-dev libeigen3-dev python3-pip python3-dev cmake -y
+```
+
+### Tested Environment
+- Ubuntu 20.04
+- Eigen #
+- PCL (Point Cloud Library) #
+
+Next, clone and compile the HeLiPR-Pointcloud-Toolbox repository using git as follows:
+
+```bash
+git clone https://github.com/url-kaist/HeLiMOS-PointCloud-Toolbox.git
+cd HeLiMOS-Pointcloud-Toolbox
+mkdir build && cd build
+cmake .. -DCMAKE_BUILD_TYPE=Release && make -j 16 
+```
+
+---
+
+## Overview 
+
+The program is mainly composed of three modules: `helimos_saver`, `helimos_merger`, and `helimos_propagator`.   Additionally, 
 
 The HeLiPR-Pointcloud-Toolbox excels with three core functionalities: 
 
@@ -40,19 +87,6 @@ The HeLiPR-Pointcloud-Toolbox excels with three core functionalities:
 </table>
 
 
-## Initial Setup
-
-**Buiild and Compile**: 
-Clone and compile the HeLiPR-Pointcloud-Toolbox repository using git.
-```bash
-git clone https://github.com/url-kaist/HeLiMOS-PointCloud-Toolbox.git
-cd HeLiMOS-Pointcloud-Toolbox
-mkdir build && cd build
-cmake ..
-make
-```
-
-
 
 ## Usage
 1. To create the HeLiMOS dataset, please refer to the config-helimos in the configuration. 
@@ -76,9 +110,6 @@ Path:
 ```
 4. helimos_propagator is coming soon. 
 
-## Dependencies
-- `Eigen`: For advanced mathematical operations, particularly with vectors and quaternions.
-- `PCL (Point Cloud Library)`: Crucial for point cloud processing and file management.
 
 ## License and Citation
 - Original helipr paper: 
@@ -95,8 +126,9 @@ Path:
 ```
 
 ## Copyright Notice
-All datasets are copyrighted by SNU RPM Labs and are distributed under the Creative Commons Attribution-NonCommercial-ShareAlike 4.0 License. This license requires proper attribution to the author for any use, prohibits commercial usage, and mandates that derivative works be licensed similarly.
+All point clouds are copyrighted by SNU RPM Labs and MOS labels are copyrighted by KAIST Urban Robotics Lab, and those are distributed under the Creative Commons Attribution-NonCommercial-ShareAlike 4.0 License. This license requires proper attribution to the author for any use, prohibits commercial usage, and mandates that derivative works be licensed similarly.
 
 ## Maintainer
-- Hyungtae Lim (shapelim@mit.edu)
-- Seoyeon Jang (9uantum01@kaist.ac.kr)
+
+- Seoyeon Jang (9uantum01 `at` kaist `dot` ac `dot` kr)
+- Hyungtae Lim (shapelim `at` mit `dot` edu)
