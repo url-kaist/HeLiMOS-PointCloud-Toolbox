@@ -31,3 +31,6 @@ TAGS
 *.m~
 python/*.egg-info/
 /doc/_build/
+
+cmake-build-release/*
+cmake-build-debug/*

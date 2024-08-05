@@ -22,19 +22,7 @@
 #include "BsplineSE3.h"
 #include <vector>
 #include <Eigen/Dense>
-#include <fstream>
-#include <sstream>
-#include <iostream>
-#include <iomanip>
-#include <filesystem> // for directory reading
-#include <pcl_conversions/pcl_conversions.h>
-#include <pcl/io/pcd_io.h>
-#include <pcl/point_types.h>
-#include <pcl/filters/voxel_grid.h>
-#include <pcl/filters/crop_box.h>
-#include <string>
 #include <dirent.h>
-#include <algorithm>
 
 using namespace ov_core;
 

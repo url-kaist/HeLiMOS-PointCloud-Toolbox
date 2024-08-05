@@ -6,7 +6,6 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
 
 # Find required packages
-find_package(catkin REQUIRED COMPONENTS roscpp pcl_ros pcl_conversions sensor_msgs)
 find_package(PCL 1.8 REQUIRED)
 find_package(Eigen3 REQUIRED)
 find_package(OpenMP QUIET)
