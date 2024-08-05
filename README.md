@@ -17,14 +17,9 @@
   <br />
   <p align="center"><img src=image/overview.png alt="animated" /></p>
 
-  [The HeLiMOS pointcloud toolbox][Projectlink] is a data processing software for moving object segmentation (MOS) in the HeLiPR dataset.<br>
+  [The HeLiMOS pointcloud toolbox](https://urobot.kaist.ac.kr/) is a data processing software for moving object segmentation (MOS) in the HeLiPR dataset.<br>
   It includes an effective merging-and-splitting-based approach ((a) and (g) in the upper figure) for labeling four heterogeneous LiDAR sensors.
 </div>
-
-[YouTubeLInk]: https://urobot.kaist.ac.kr/
-[arXivlink]: https://urobot.kaist.ac.kr/
-[Proejectlink]: https://urobot.kaist.ac.kr/
-[Datasetlink]: https://urobot.kaist.ac.kr/
 
 ## :package: Installation
 > What we need are just minimal dependencies.
