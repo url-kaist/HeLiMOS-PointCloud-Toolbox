@@ -61,7 +61,7 @@ int main(int argc, char **argv)
 
   std::string saveAs = config["Save"]["saveAs"].as<std::string>();
   std::string mergedSavePath = config["Path"]["savePath"].as<std::string>() + "Merged/";
-  std::string mergedSavePathLiDAR = mergedSavePath + "scans/";
+  std::string mergedSavePathLiDAR = mergedSavePath + "velodyne/";
   std::string mergedSavePathPose = mergedSavePath + "poses.txt";
   std::string mergedSavePathCalib = mergedSavePath + "calib.txt";
   std::ofstream foutMergedPose;

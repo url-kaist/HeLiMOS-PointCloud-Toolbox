@@ -22,16 +22,12 @@
 </div>
 
 ## :package: Installation
-> What we need are just minimal dependencies.
+What we need are just minimal dependencies.
 
 ```commandline
 sudo apt-get install g++ build-essential libpcl-dev libeigen3-dev python3-pip python3-dev cmake -y
 ```
 
-### Tested Environment
-- Ubuntu 20.04
-- Eigen #
-- PCL (Point Cloud Library) #
 
 Next, clone and compile the HeLiPR-Pointcloud-Toolbox repository using git as follows:
 
@@ -44,68 +40,209 @@ cmake .. -DCMAKE_BUILD_TYPE=Release && make -j 16
 
 ---
 
-## Overview 
+## 🔍 Overview 
 
-The program is mainly composed of three modules: `helimos_saver`, `helimos_merger`, and `helimos_propagator`.   Additionally, 
+The program is mainly composed of three modules: `helimos_saver`, `helimos_merger`, and `helimos_propagator`.  
 
 The HeLiPR-Pointcloud-Toolbox excels with three core functionalities: 
 
-- `helimos_saver` deskews and saves individual LiDAR data and pose data in the SemanticKITTI format.
+- `helimos_saver` deskews and saves individual LiDAR data and pose data in the HeLiMOS format.
+<p align='center'><img src=image/pics_saver/helimos_convert.png /></p>
 
-- `helimos_merger` synchronizes and merges the saved LiDAR data into a single combined cloud.
+- `helimos_merger` synchronizes and combines the saved LiDAR data into a single merged cloud.
 
 <table align="center">
   <tr>
-    <td><img src="image/pics_merger/Aeva.png" alt="Aeva" width="300"></td>
-    <td><img src="image/pics_merger/livox.png" alt="livox" width="300"></td>
-    <td rowspan="2"><img src="image/pics_merger/Merged.png" alt="Merged" width="600"></td>
+    <td>
+      <div style="text-align: center;">
+        <img src="image/pics_merger/Aeva.png" alt="Aeva" width="300">
+        <div style="margin-top: 8px;">Aeva cloud</div>
+      </div>
+    </td>
+    <td>
+      <div style="text-align: center;">
+        <img src="image/pics_merger/livox.png" alt="Livox" width="300">
+        <div style="margin-top: 8px;">Livox cloud</div>
+      </div>
+    </td>
+    <td rowspan="2">
+      <div style="text-align: center;">
+        <img src="image/pics_merger/Merged.png" alt="Merged" width="600">
+        <div style="margin-top: 8px;">Merged cloud</div>
+      </div>
+    </td>
   </tr>
   <tr>
-    <td><img src="image/pics_merger/Velodyne.png" alt="Velodyne" width="300"></td>
-    <td><img src="image/pics_merger/Ouster.png" alt="Ouster" width="300"></td>
+    <td>
+      <div style="text-align: center;">
+        <img src="image/pics_merger/Velodyne.png" alt="Velodyne" width="300">
+        <div style="margin-top: 8px;">Velodyne cloud</div>
+      </div>
+    </td>
+    <td>
+      <div style="text-align: center;">
+        <img src="image/pics_merger/Ouster.png" alt="Ouster" width="300">
+        <div style="margin-top: 8px;">Ouster cloud</div>
+      </div>
+    </td>
   </tr>
 </table>
 
 
-- `helimos_propagator` backpropagates the labeled points from the merged scan to the individual clouds.
+
+- `helimos_propagator` backpropagates the labeled points from the merged cloud to the individual clouds.
 
 <table align="center">
   <tr>
-    <td rowspan="2"><img src="image/pics_propagator/Merged_dyn.png" alt="Propagated" width="600"></td>
-    <td><img src="image/pics_propagator/Aeva_dyn.png" alt="Aevadyn" width="300"></td>
-    <td><img src="image/pics_propagator/Livox_dyn.png" alt="Livoxdyn 2" width="300"></td>
+    <td rowspan="2">
+      <div style="text-align: center;">
+        <img src="image/pics_propagator/Merged_dyn.png" alt="Propagated" width="600">
+        <div style="margin-top: 8px;">Labeled merged cloud</div>
+      </div>
+    </td>
+    <td>
+      <div style="text-align: center;">
+        <img src="image/pics_propagator/Aeva_dyn.png" alt="Aevadyn" width="300">
+        <div style="margin-top: 8px;">Labeled Aeva cloud</div>
+      </div>
+    </td>
+    <td>
+      <div style="text-align: center;">
+        <img src="image/pics_propagator/Livox_dyn.png" alt="Livoxdyn" width="300">
+        <div style="margin-top: 8px;">Labeled Livox cloud</div>
+      </div>
+    </td>
   </tr>
   <tr>
-    <td><img src="image/pics_propagator/Velodyne_dyn.png" alt="Velodyn" width="300"></td>
-    <td><img src="image/pics_propagator/Ouster_dyn.png" alt="OSdyn" width="300"></td>
+    <td>
+      <div style="text-align: center;">
+        <img src="image/pics_propagator/Velodyne_dyn.png" alt="Velodyn" width="300">
+        <div style="margin-top: 8px;">Labeled Velodyne cloud</div>
+      </div>
+    </td>
+    <td>
+      <div style="text-align: center;">
+        <img src="image/pics_propagator/Ouster_dyn.png" alt="OSdyn" width="300">
+        <div style="margin-top: 8px;">Labeled Ouster cloud</div>
+      </div>
+    </td>
   </tr>
 </table>
 
 
 
-## Usage
-1. To create the HeLiMOS dataset, please refer to the config-helimos in the configuration. 
+---
 
-    **Note!** Except for changing the path settings to your path, please do not change any other settings.
+## :wrench: Usage
+
+### 1. Getting Started with the HeLiPR Dataset
+When you download a specific sequence of the HeLiPR dataset, you can see the following file structure:
+```bash
+${sequence.tar.gz} # /path/to/HeLiPR/sequence
+├── LiDAR
+│   ├── Aeva
+│   │   ├── <timestamp>.bin
+│   │   ├── ...
+│   ├── Avia
+│   │   ├── <timestamp>.bin
+│   │   ├── ...
+│   ├── Ouster
+│   │   ├── <timestamp>.bin
+│   │   ├── ...
+│   └── Velodyne
+│       ├── <timestamp>.bin
+│       ├── ...
+├── LiDAR_GT
+│   ├── Aeva_gt.txt
+│   ├── Avia_gt.txt
+│   ├── Ouster_gt.txt
+│   └── Velodyne_gt.txt
+├── Calibration
+├── Inertial_data
+└── stamp.csv
+```
+The `LiDAR` path contains LiDAR point cloud data, with filenames structured as `<timestamp>.bin`. The `LiDAR_GT` folder contains individual LiDAR ground truth poses based on the INS system, in a TXT format structured as `[timestamp, x, y, z, qx, qy, qz, qw]`. The timestamp in these files corresponds to the timestamp in the LiDAR path.
+
+### 2. Before Running HeLiMOS toolbox
+Refer to the `config-helimos.yaml` file in `config` folder, where you can find the following parameters:
 
 ```yaml
 Path:
-  binPath: "/path/to/HeLiPR/lidar/LiDAR/" # The path containing bin file from HeLiPR dataset
-  trajPath: "/path/to/HeLiPR/LiDAR_GT/" # The path containing the gt trajectory of the 4 LiDARs
-  savePath: "/home/se0yeon00/helimos/" # The path where you want to save the data
+  binPath: "/path/to/HeLiPR/sequence/LiDAR/"
+  trajPath: "/path/to/HeLiPR/sequence/LiDAR_GT/" 
+  savePath: "/path/to/HeLiMOS/sequence"
 ```
 
-2. if you want to use helimos saver,
+`binPath` refers to the LiDAR folder path in the HeLiPR dataset, `trajPath` refers to the LiDAR_GT folder path in the HeLiPR dataset, and `savePath` indicates the folder path where the HeLiMOS dataset will be saved. `binPath` and `trajPath` should be set to the actual paths of the HeLiPR dataset, and the `savePath` should be set to the folder where you want to save the HeLiMOS dataset.
+
+**Note!** Except for changing the path settings to your path, please do not change any other settings.
+
+### 3. HeLiMOS saver: Converting HeLiPR data format to HeLiMOS data format
+if you want to use `helimos_saver`,
 ```bash
 ./helimos_saver
 ```
-3. or if you want to use helimos merger,
+HeLiMOS saver converts the **HeLiPR data format** to the **HeLiMOS data format**. HeLiMOS data format is similar to the SemanticKITTI format. For more detailed information, please refer to the [SemanticKITTI website](https://www.semantic-kitti.org/dataset.html#overview).
+When you run this tool, the deskewed point clouds will be saved in the `velodyne` folder, and individual LiDAR poses will be saved as a `poses.txt` file which contains the first 3 rows of a 4x4 homogeneous pose matrix `[r11 r12 r13 tx r21 r22 r23 ty r31 r32 r33 tz]`.
+
+```bash
+${savePath} # /path/to/HeLiMOS/sequence
+├── Aeva
+│   ├── calib.txt
+│   ├── poses.txt
+│   └── velodyne
+│     ├── 000000.bin
+│     ├── 000001.bin
+│     ├── ...
+├── Avia
+│   ├── calib.txt
+│   ├── poses.txt
+│   └── velodyne
+│     ├── 000000.bin
+│     ├── 000001.bin
+│     ├── ...
+├── Ouster
+│   ├── calib.txt
+│   ├── poses.txt
+│   └── velodyne
+│     ├── 000000.bin
+│     ├── 000001.bin
+│     ├── ...
+└── Velodyne
+    ├── calib.txt
+    ├── poses.txt
+    └── velodyne
+      ├── 000000.bin
+      ├── 000001.bin
+      ├── ...
+
+```
+### 4. HeLiMOS merger: Synchronizing and combining individual clouds into merged cloud
+if you want to use `helimos_merger`,
 ```bash
 ./helimos_merger
 ```
-4. helimos_propagator is coming soon. 
+HeLiMOS merger synchronizes and merges four individual point clouds into a single, unified point cloud. When you run this tool, the four point clouds captured around the same timestamp are merged into the **Ouster frame** and saved in the HeLiMOS format within a folder named `Merged`.
+```bash
+${savePath} # e.g., /path/to/HeLiMOS/sequence
+├── Aeva
+├── Avia
+├── Ouster
+├── Velodyne
+└── Merged
+    ├── calib.txt
+    ├── poses.txt
+    └── velodyne
+      ├── 000000.bin 
+      ├── 000001.bin
+      ├── ...
 
+```
 
+### 5. HeLiMOS propagator : Backpropagating the labeled merged cloud onto individual clouds
+TBU
+
+---
 ## License and Citation
 - Original helipr paper: 
 

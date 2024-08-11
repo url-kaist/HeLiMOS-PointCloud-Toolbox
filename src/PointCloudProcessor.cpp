@@ -102,7 +102,7 @@ void PointCloudProcessor::gatherInput(YAML::Node &config, int sensorType)
   binPath = config["Path"]["binPath"].as<std::string>() + sensorString + "/";
   trajPath = config["Path"]["trajPath"].as<std::string>() + sensorString + "_gt.txt";
   savePath = config["Path"]["savePath"].as<std::string>() + sensorString + "/";
-  savePathLiDAR = savePath + "scans/";
+  savePathLiDAR = savePath + "velodyne/";
   savePathPose = savePath + "poses.txt";
   savePathCalib = savePath + "calib.txt";
 
