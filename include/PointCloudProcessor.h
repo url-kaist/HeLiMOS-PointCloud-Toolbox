@@ -42,6 +42,7 @@ public:
     std::string savePathLiDAR;
     std::string savePathPose;
     std::string savePathCalib;
+    std::string savePathLabel;
     std::ofstream foutPose; // for poses.txt
     std::ofstream foutCalib; // for calib.txt
 

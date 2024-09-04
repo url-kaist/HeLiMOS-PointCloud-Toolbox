@@ -34,7 +34,7 @@ set(PCL_DIR "/usr/lib/x86_64-linux-gnu/cmake/pcl")
 # Source files
 set(SAVER_FILES src/pointSaver.cpp src/visualizer.cpp src/PointCloudProcessor.cpp src/utility.cpp src/BsplineSE3.cpp)
 set(MERGER_FILES src/pointMerger.cpp src/visualizer.cpp src/PointCloudProcessor.cpp src/utility.cpp src/BsplineSE3.cpp)
-
+set(PROPAGATE_FILES src/pointPropagator.cpp src/visualizer.cpp src/PointCloudProcessor.cpp src/utility.cpp src/BsplineSE3.cpp)
 # Add executable
 add_executable(helimos_saver ${SAVER_FILES})
 
@@ -54,4 +54,14 @@ target_link_libraries(helimos_merger
   ${PCL_LIBRARIES} 
   ${EIGEN3_LIBRARIES}
   ${YAML_CPP_LIBRARIES} 
+)
+
+add_executable(helimos_propagator ${PROPAGATE_FILES})
+
+target_link_libraries(helimos_propagator 
+  ${catkin_LIBRARIES} 
+  ${PCL_LIBRARIES} 
+  ${EIGEN3_LIBRARIES}
+  ${YAML_CPP_LIBRARIES}
+  
 )

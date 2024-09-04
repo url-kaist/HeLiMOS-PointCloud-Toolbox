@@ -1,5 +1,5 @@
 <div align="center">
-    <h1>HeLiMOS Pointcloud Toolobox</h1>
+    <h1>🚗 HeLiMOS Pointcloud Toolbox 🏃</h1>
     <a href="https://github.com/url-kaist/HeLiMOS-PointCloud-Toolbox"><img src="https://img.shields.io/badge/-C++-blue?logo=cplusplus" /></a>
     <a href="https://github.com/url-kaist/HeLiMOS-PointCloud-Toolbox"><img src="https://img.shields.io/badge/Linux-FCC624?logo=linux&logoColor=black" /></a>
     <a href="https://sites.google.com/view/heliprdataset"><img src="https://img.shields.io/badge/HeLiPR_Dataset-4285F4?style=for-the-badge&logo=google-cloud&logoColor=white" height="21"/></a>
@@ -41,7 +41,7 @@ cmake .. -DCMAKE_BUILD_TYPE=Release && make -j 16
 
 ## 🔍 Overview 
 
-The program is mainly composed of three modules: `helimos_saver`, `helimos_merger`, and `helimos_propagator`.  
+This toolbox consists of three modules: `helimos_saver`, `helimos_merger`, and `helimos_propagator`!
 
 
 
@@ -163,8 +163,8 @@ ${sequence.tar.gz} # /path/to/HeLiPR/sequence
 ├── Inertial_data
 └── stamp.csv
 ```
-`LiDAR` : the folder contains LiDAR point cloud data, with filenames structured as `<timestamp>.bin`. 
-`LiDAR_GT` : the folder contains individual LiDAR ground truth poses based on the INS system, in a TXT format structured as `[timestamp, x, y, z, qx, qy, qz, qw]`. 
+- `LiDAR` : the folder contains LiDAR point cloud, with filenames structured as `<timestamp>.bin`. 
+- `LiDAR_GT` : the folder contains individual LiDAR ground truth poses based on the INS system, in a TXT format structured as `[timestamp, x, y, z, qx, qy, qz, qw]`.<br> 
 For more detailed information, please refer to the [HeLiPR website](https://sites.google.com/view/heliprdataset).
 
 ### 2. Before Running HeLiMOS toolbox
@@ -186,12 +186,26 @@ Path:
 **Note!** Except for changing the path settings to your path, please do not change any other settings.
 
 ### 3. HeLiMOS saver: Converting HeLiPR data format to HeLiMOS data format
+
+`helimos_saver` converts the **HeLiPR data format** to the **HeLiMOS data format**. 
+HeLiMOS data format is similar to the **SemanticKITTI format**. For more detailed information, please refer to the [SemanticKITTI website](https://www.semantic-kitti.org/dataset.html#overview).<br>
+
 if you want to use `helimos_saver`,
 ```bash
 ./helimos_saver
 ```
-HeLiMOS saver converts the **HeLiPR data format** to the **HeLiMOS data format**. HeLiMOS data format is similar to the SemanticKITTI format. For more detailed information, please refer to the [SemanticKITTI website](https://www.semantic-kitti.org/dataset.html#overview).<br>
-When you run `helimos_saver`, the deskewed point clouds will be saved in the `velodyne` folder, and individual LiDAR poses will be saved as a `poses.txt` file which contains the first **3 rows of a 4x4 homogeneous pose matrix** `[r11 r12 r13 tx r21 r22 r23 ty r31 r32 r33 tz]`.
+
+When you run `helimos_saver`, the deskewed point clouds will be saved in the `velodyne` folder. 
+and individual LiDAR poses will be saved as a `poses.txt` file which contains the first **3 rows of a 4x4 homogeneous pose matrix** `[r11 r12 r13 tx r21 r22 r23 ty r31 r32 r33 tz]`.
+<div align="center">
+  <img src="image/pose_example.png">
+</div>
+
+And all calibration values are identity matrices, saved as `calib.txt`.
+<div align="center">
+  <img src="image/calib.png">
+</div>
+
 
 ```bash
 ${savePath} # /path/to/HeLiMOS/sequence/Deskewed_LiDAR
@@ -226,11 +240,17 @@ ${savePath} # /path/to/HeLiMOS/sequence/Deskewed_LiDAR
 
 ```
 ### 4. HeLiMOS merger: Synchronizing and combining individual clouds into merged cloud
+
+`helimos_merger` synchronizes and merges four individual point clouds into a single, unified point cloud. 
+When you run this tool, the four point clouds captured around the same timestamp are merged into the **Ouster frame** and saved in the **HeLiMOS format** within a folder named `Merged`.
+
 if you want to use `helimos_merger`,
 ```bash
 ./helimos_merger
 ```
-HeLiMOS merger synchronizes and merges four individual point clouds into a single, unified point cloud. When you run this tool, the four point clouds captured around the same timestamp are merged into the **Ouster frame** and saved in the HeLiMOS format within a folder named `Merged`.
+
+Then you will obtain the following Merged scan data.
+
 ```bash
 ${savePath} # e.g., /path/to/HeLiMOS/sequence
 ├── Aeva
@@ -248,13 +268,119 @@ ${savePath} # e.g., /path/to/HeLiMOS/sequence
 ```
 
 ### 5. HeLiMOS propagator : Backpropagating the labeled merged cloud onto individual clouds
-TBU
+`helimos_propagator` back-propagates **MOS labels** from the Merged scan to the four individual LiDAR scans.
+The MOS labels from the **Merged scan** should be saved as a `uint32_t` type `.label` file like SemanticKITTI, and the label classes must follow the [SemanticKITTI MOS classes](https://github.com/PRBonn/semantic-kitti-api/blob/master/config/semantic-kitti-mos.yaml). 
+
+This means that each label file should only include the following classes:
+
+- 0: unlabeled
+- 9: static
+- 251: moving
+
+<div align="center">
+  <img src="image/labels_format.png">
+</div>
+
+Save the MOS `.label` files in the `Merged` - `labels` folder, as shown below:
+```bash
+${savePath} # e.g., /path/to/HeLiMOS/sequence
+├── Aeva
+├── Avia
+├── Ouster
+├── Velodyne
+└── Merged
+    ├── calib.txt
+    ├── poses.txt
+    ├── velodyne
+    │  ├── 000000.bin 
+    │  ├── 000001.bin
+    │  ├── ...
+    └── labels
+       ├── 000000.label
+       ├── 000001.label
+       ├── ...
+```
+
+Then, run the `helimos_propagator`.
+```bash
+./helimos_propagator
+```
+
+Then you can get the propagated MOS labels for the four LiDARs.
+
+```bash
+${savePath} # e.g., /path/to/HeLiMOS/sequence
+├── Aeva
+│    ├── calib.txt
+│    ├── poses.txt
+│    ├── velodyne
+│    │  ├── 000000.bin 
+│    │  ├── 000001.bin
+│    │  ├── ...
+│    └── labels
+│       ├── 000000.label
+│       ├── 000001.label
+│       ├── ...
+├── Avia
+│    ├── calib.txt
+│    ├── poses.txt
+│    ├── velodyne
+│    │  ├── 000000.bin 
+│    │  ├── 000001.bin
+│    │  ├── ...
+│    └── labels
+│       ├── 000000.label
+│       ├── 000001.label
+│       ├── ...
+├── Ouster
+│    ├── calib.txt
+│    ├── poses.txt
+│    ├── velodyne
+│    │  ├── 000000.bin 
+│    │  ├── 000001.bin
+│    │  ├── ...
+│    └── labels
+│       ├── 000000.label
+│       ├── 000001.label
+│       ├── ...
+├── Velodyne
+│    ├── calib.txt
+│    ├── poses.txt
+│    ├── velodyne
+│    │  ├── 000000.bin 
+│    │  ├── 000001.bin
+│    │  ├── ...
+│    └── labels
+│       ├── 000000.label
+│       ├── 000001.label
+│       ├── ...
+└── Merged
+    ├── calib.txt
+    ├── poses.txt
+    ├── velodyne
+    │  ├── 000000.bin 
+    │  ├── 000001.bin
+    │  ├── ...
+    └── labels
+       ├── 000000.label
+       ├── 000001.label
+       ├── ...
+```
+
 
 ---
 ## License and Citation
-- Original helipr paper: 
 
 ```bibtex
+@misc{lim2024helimos,
+      title={HeLiMOS: A Dataset for Moving Object Segmentation in 3D Point Clouds From Heterogeneous LiDAR Sensors}, 
+      author={Hyungtae Lim and Seoyeon Jang and Benedikt Mersch and Jens Behley and Hyun Myung and Cyrill Stachniss},
+      year={2024},
+      eprint={2408.06328},
+      archivePrefix={arXiv},
+      primaryClass={cs.CV},
+}
+
 @misc{jung2023helipr,
       title={HeLiPR: Heterogeneous LiDAR Dataset for inter-LiDAR Place Recognition under Spatial and Temporal Variations}, 
       author={Minwoo Jung and Wooseong Yang and Dongjae Lee and Hyeonjae Gil and Giseop Kim and Ayoung Kim},

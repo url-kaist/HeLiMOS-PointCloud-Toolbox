@@ -31,8 +31,17 @@
 #include <memory>
 #include <yaml-cpp/yaml.h>
 
+#include "nanoflann/nanoflann.hpp"
+#include "nanoflann/nanoflann_utils.hpp"
+
 #define HASH_P 116101
 #define MAX_N 10000000000
+
+using num_t = float;
+using my_kd_tree_t = nanoflann::KDTreeSingleIndexAdaptor<
+        nanoflann::L2_Simple_Adaptor<num_t, PointCloud<num_t>>,
+        PointCloud<num_t>, 3 /* dim */
+    >;
 
 const std::string green = "\033[32m";  // Green text
 const std::string red = "\033[31m";    // Red text
@@ -151,6 +160,14 @@ void downsample_to_target_size(pcl::PointCloud<pcl::PointXYZI> &pl_feat, size_t 
 void writeCalibrationFile(const std::string &calibPath);
 void vec2tf4x4(const std::vector<float> &pose, Eigen::Matrix4f &tf4x4);
 std::pair<long long, std::vector<float>> splitLine(std::string input, char delimiter);
+void pcl2nanoflann(const pcl::PointCloud<pcl::PointXYZI>& src_cloud, PointCloud<num_t>& cloud);
+
+// Below is more appropriate in the PointCloudProcessor (findDynamicCorrespondences, loadLabel, assignLabels, loadCloud) 
+void findDynamicCorrespondences(const pcl::PointCloud<pcl::PointXYZI> &query_cloud, const pcl::PointCloud<pcl::PointXYZI> &target_cloud, std::vector<uint32_t>& correspondences);
+void loadLabel(const std::string &label_name, std::vector<uint32_t> &labels);
+void assignLabels(const std::vector<uint32_t> labels, pcl::PointCloud<pcl::PointXYZI> &cloud);
+void saveLabels(const std::string &label_name, std::vector<uint32_t> &labels);
+
 
 template<typename T>
 void saveToBinFile(const std::string& filename, const pcl::PointCloud<T>& cloud) {
@@ -177,7 +194,7 @@ template<typename T>
 int loadCloud(size_t idx, std::string cloud_dir, std::string cloud_format, pcl::PointCloud<T> &cloud)
 {
   if (cloud_dir.back() == '/') { cloud_dir.pop_back(); }
-  std::string filename = cloud_dir + "/" + padZeros(idx, 6) + "." + cloud_format; //(boost::format("%s/%06d.%s") % cloud_dir % idx % cloud_format).str();
+  std::string filename = cloud_dir + "/" + padZeros(idx, 6) + "." + cloud_format;
   FILE   *file    = fopen(filename.c_str(), "rb");
   if (!file) {
     std::cerr << "Error: failed to load " << filename << std::endl;
@@ -209,5 +226,6 @@ int loadCloud(size_t idx, std::string cloud_dir, std::string cloud_format, pcl::
   }
   return 0;
 }
+
 
 #endif // UTILITY_H

@@ -1,7 +1,7 @@
 Path:
-  binPath: "/home/se0yeon00/toolbox/HeLiPR/Bridge02/LiDAR/"
-  trajPath: "/home/se0yeon00/toolbox/HeLiPR/Bridge02/LiDAR_GT/"
-  savePath: "/home/se0yeon00/toolbox/HeLiMOS/Bridge02/Deskewed_LiDAR/"
+  binPath: "/home/se0yeon00/toolbox/HeLiPR/KAIST05/LiDAR/"
+  trajPath: "/home/se0yeon00/toolbox/HeLiPR/KAIST05/LiDAR_GT/"
+  savePath: "/home/se0yeon00/toolbox/HeLiMOS/KAIST05/Deskewed_LiDAR/"
 
 Undistort:
   numIntervals: 250

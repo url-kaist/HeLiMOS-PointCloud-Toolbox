@@ -105,6 +105,7 @@ void PointCloudProcessor::gatherInput(YAML::Node &config, int sensorType)
   savePathLiDAR = savePath + "velodyne/";
   savePathPose = savePath + "poses.txt";
   savePathCalib = savePath + "calib.txt";
+  savePathLabel = savePath + "labels/";
 
   // * Parameters for saving
   undistortFlag = config["Undistort"]["undistortFlag"].as<bool>();
@@ -151,6 +152,17 @@ void PointCloudProcessor::gatherInput(YAML::Node &config, int sensorType)
     std::cout << yellow << "The path does not exist. Creating a new directory." << reset << std::endl;
     // Attempt to create the directory
     if (!std::filesystem::create_directory(savePathLiDAR))
+    {
+      std::cout << red << "Failed to create the directory. Please check config.yaml." << reset << std::endl;
+      exit(0);
+    }
+  }
+
+  if (!std::filesystem::exists(savePathLabel))
+  {
+    std::cout << yellow << "The path does not exist. Creating a new directory." << reset << std::endl;
+    // Attempt to create the directory
+    if (!std::filesystem::create_directory(savePathLabel))
     {
       std::cout << red << "Failed to create the directory. Please check config.yaml." << reset << std::endl;
       exit(0);

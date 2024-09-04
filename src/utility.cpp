@@ -189,3 +189,97 @@ std::pair<long long, std::vector<float>> splitLine(std::string input, char delim
     return {timestamp, answer};
 }
 
+void pcl2nanoflann(const pcl::PointCloud<pcl::PointXYZI>& src_cloud, PointCloud<num_t>& cloud)
+{
+    int N = src_cloud.points.size();
+
+    cloud.pts.resize(N);
+    for (size_t i = 0; i < N; i++) {
+        cloud.pts[i].x = src_cloud.points[i].x;
+        cloud.pts[i].y = src_cloud.points[i].y;
+        cloud.pts[i].z = src_cloud.points[i].z;
+    }
+}
+
+void findDynamicCorrespondences(const pcl::PointCloud<pcl::PointXYZI> &query_cloud, 
+                                const pcl::PointCloud<pcl::PointXYZI> &target_cloud, 
+                                std::vector<uint32_t>& correspondences) {
+    /*
+    target_cloud == Merged cloud | query_cloud == A, L, O, V cloud
+    */
+    PointCloud<num_t> cloud;
+    pcl2nanoflann(target_cloud, cloud);
+
+    my_kd_tree_t kdtree(3 /*dim*/, cloud, {10 /* max leaf */});
+    correspondences.resize(query_cloud.size());
+
+    int query_idx = 0;
+    for (auto &query_pcl: query_cloud.points) {
+        const num_t query_pt[3] = {query_pcl.x, query_pcl.y, query_pcl.z};
+        size_t                num_results = 1;
+        std::vector<uint32_t> ret_index(num_results);
+        std::vector<num_t>    out_dist_sqr(num_results);
+
+        num_results = kdtree.knnSearch(
+                    &query_pt[0], num_results, &ret_index[0], &out_dist_sqr[0]);
+            
+        ret_index.resize(num_results);
+        out_dist_sqr.resize(num_results);
+
+        float out_dist_sqr_score = out_dist_sqr[0];
+         if (out_dist_sqr_score < 0.03) {
+                uint32_t target_intensity = target_cloud.points[ret_index[0]].intensity;
+                if(target_intensity == 0) {
+                    correspondences[query_idx] = 0;
+                } else if(target_intensity > 250) {
+                    correspondences[query_idx] = 251;
+                } else if(target_intensity < 10){
+                        correspondences[query_idx] = 9;
+                }
+        } else {
+                correspondences[query_idx] = 9;
+        }   
+            ++query_idx;
+    }
+
+}
+
+void loadLabel(const std::string &label_name, std::vector<uint32_t> &labels) {
+   std::ifstream label_input(label_name, std::ios::binary);
+    if (!label_input.is_open()) {
+        std::cerr << "Could not open the label!" << std::endl;
+    }
+    label_input.seekg(0, std::ios::end);
+    uint32_t num_points = label_input.tellg() / sizeof(uint32_t);
+    label_input.seekg(0, std::ios::beg);
+
+    labels.resize(num_points);
+    label_input.read((char *) &labels[0], num_points * sizeof(uint32_t));
+
+    label_input.close();
+}
+
+void assignLabels(const std::vector<uint32_t> labels, pcl::PointCloud<pcl::PointXYZI> &cloud) {
+    for (int i = 0; i < labels.size(); i++) {
+        if(labels[i] > 250) {
+            cloud.at(i).intensity = 251;
+        } else if(labels[i] == 0) {
+            cloud.at(i).intensity = 0;
+        } else {
+            cloud.at(i).intensity = 9;
+        }
+    }
+
+}
+
+void saveLabels(const std::string &label_name, std::vector<uint32_t> &labels) {
+    std::ofstream label_output(label_name, std::ios::binary);
+    if (!label_output.is_open()) {
+        std::cerr << "Could not open the label!" << std::endl;
+    }
+    label_output.write(reinterpret_cast<char*>(&labels[0]), labels.size() * sizeof(uint32_t));
+    label_output.close();
+}
+
+
+
