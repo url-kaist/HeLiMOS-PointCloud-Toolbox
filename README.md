@@ -3,7 +3,7 @@
     <a href="https://github.com/url-kaist/HeLiMOS-PointCloud-Toolbox"><img src="https://img.shields.io/badge/-C++-blue?logo=cplusplus" /></a>
     <a href="https://github.com/url-kaist/HeLiMOS-PointCloud-Toolbox"><img src="https://img.shields.io/badge/Linux-FCC624?logo=linux&logoColor=black" /></a>
     <a href="https://sites.google.com/view/heliprdataset"><img src="https://img.shields.io/badge/HeLiPR_Dataset-4285F4?style=for-the-badge&logo=google-cloud&logoColor=white" height="21"/></a>
-    <a href="https://sites.google.com/view/helimos"><img src="https://img.shields.io/badge/HeLiMOS_Dataset-4285F4?style=for-the-badge&logo=open-access&logoColor=white" height="21"/></a>
+    <a href="https://sites.google.com/view/helimos"><img src="https://img.shields.io/badge/HeLiMOS_Dataset-FFA500?style=for-the-badge&logo=open-access&logoColor=white" height="21"/></a>
     <!-- a href="https://ieeexplore.ieee.org/document/9981561"><img src="https://img.shields.io/badge/DOI-10.1109/IROS47612.2022.9981561-004088.svg"/-->
     <br />
     <br />
