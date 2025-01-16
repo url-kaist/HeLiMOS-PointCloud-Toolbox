@@ -175,7 +175,7 @@ Refer to the `config-helimos.yaml` file in `config` folder, where you can find t
 Path:
   binPath: "/path/to/HeLiPR/sequence/LiDAR/"
   trajPath: "/path/to/HeLiPR/sequence/LiDAR_GT/" 
-  savePath: "/path/to/HeLiMOS/sequence/Deskewed_LiDAR"
+  savePath: "/path/to/HeLiMOS/sequence/Deskewed_LiDAR/"
 ```
 
 - `binPath`: LiDAR folder path in the HeLiPR dataset
