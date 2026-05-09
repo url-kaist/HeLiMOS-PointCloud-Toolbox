@@ -10,6 +10,7 @@
 #include <pcl/io/pcd_io.h>
 #include <pcl/common/centroid.h>
 #include <pcl/common/common.h>
+#include <pcl/common/transforms.h>
 #include <cstdlib> // For std::rand()
 #include <ctime> // For std::time(), seeding the random number generator
 
@@ -162,6 +163,16 @@ void vec2tf4x4(const std::vector<float> &pose, Eigen::Matrix4f &tf4x4);
 std::pair<long long, std::vector<float>> splitLine(std::string input, char delimiter);
 void pcl2nanoflann(const pcl::PointCloud<pcl::PointXYZI>& src_cloud, PointCloud<num_t>& cloud);
 
+// Sanity-checks that Ouster scans come first and that the four LiDAR timestamp
+// streams stay aligned within `diff_in_sec`. Throws std::runtime_error otherwise.
+// Returns {minSize, maxSize} across the four streams.
+std::pair<size_t, size_t> validateAndAlignTimestamps(
+    const std::vector<long long> &ts_ouster,
+    const std::vector<long long> &ts_velodyne,
+    const std::vector<long long> &ts_avia,
+    const std::vector<long long> &ts_aeva,
+    double diff_in_sec = 0.08);
+
 // Below is more appropriate in the PointCloudProcessor (findDynamicCorrespondences, loadLabel, assignLabels, loadCloud) 
 void findDynamicCorrespondences(const pcl::PointCloud<pcl::PointXYZI> &query_cloud, const pcl::PointCloud<pcl::PointXYZI> &target_cloud, std::vector<uint32_t>& correspondences);
 void loadLabel(const std::string &label_name, std::vector<uint32_t> &labels);
@@ -181,9 +192,10 @@ void saveToBinFile(const std::string& filename, const pcl::PointCloud<T>& cloud)
         outFile.write(reinterpret_cast<const char*>(&point.x), sizeof(point.x));
         outFile.write(reinterpret_cast<const char*>(&point.y), sizeof(point.y));
         outFile.write(reinterpret_cast<const char*>(&point.z), sizeof(point.z));
-        if (std::is_same<T, pcl::PointXYZ>::value) {
-          outFile.write(reinterpret_cast<const char *>(0), sizeof(point.z));
-        } else if (std::is_same<T, pcl::PointXYZI>::value) {
+        if constexpr (std::is_same<T, pcl::PointXYZ>::value) {
+          const float zero_intensity = 0.0f;
+          outFile.write(reinterpret_cast<const char *>(&zero_intensity), sizeof(zero_intensity));
+        } else if constexpr (std::is_same<T, pcl::PointXYZI>::value) {
           outFile.write(reinterpret_cast<const char *>(&point.intensity), sizeof(point.intensity));
         }
     }

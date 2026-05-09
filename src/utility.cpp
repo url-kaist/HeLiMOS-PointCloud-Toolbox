@@ -281,5 +281,50 @@ void saveLabels(const std::string &label_name, std::vector<uint32_t> &labels) {
     label_output.close();
 }
 
+std::pair<size_t, size_t> validateAndAlignTimestamps(
+    const std::vector<long long> &ts_ouster,
+    const std::vector<long long> &ts_velodyne,
+    const std::vector<long long> &ts_avia,
+    const std::vector<long long> &ts_aeva,
+    double diff_in_sec)
+{
+    if (ts_ouster.empty() || ts_velodyne.empty() || ts_avia.empty() || ts_aeva.empty()) {
+        throw std::runtime_error("validateAndAlignTimestamps: at least one timestamp stream is empty");
+    }
+
+    std::cout << std::fixed
+              << ts_ouster[0]   << std::endl
+              << ts_velodyne[0] << std::endl
+              << ts_avia[0]     << std::endl
+              << ts_aeva[0]     << std::endl;
+
+    if (!(ts_ouster[0] < ts_velodyne[0] &&
+          ts_ouster[0] < ts_avia[0] &&
+          ts_ouster[0] < ts_aeva[0])) {
+        throw std::runtime_error(
+            "Currently, only KAIST05 is supported while strongly assuming that the Ouster comes first");
+    }
+    std::cout << std::fixed << "Check Ouster comes first!" << std::endl;
+
+    const size_t minSize = std::min({ts_ouster.size(), ts_velodyne.size(),
+                                     ts_avia.size(),   ts_aeva.size()});
+    const size_t maxSize = std::max({ts_ouster.size(), ts_velodyne.size(),
+                                     ts_avia.size(),   ts_aeva.size()});
+
+    auto withinTolerance = [diff_in_sec](long long a, long long b) {
+        return std::abs(static_cast<double>(a - b)) / 1e9 <= diff_in_sec;
+    };
+
+    for (size_t i = 0; i < minSize; ++i) {
+        if (!(withinTolerance(ts_ouster[i], ts_velodyne[i]) &&
+              withinTolerance(ts_ouster[i], ts_avia[i]) &&
+              withinTolerance(ts_ouster[i], ts_aeva[i]))) {
+            throw std::runtime_error("Something's wrong. Timestamp is not matched :(");
+        }
+    }
+
+    return {minSize, maxSize};
+}
+
 
 

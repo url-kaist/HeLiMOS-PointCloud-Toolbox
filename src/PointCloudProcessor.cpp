@@ -34,7 +34,7 @@ void PointCloudProcessor::displayBanner()
   const std::string inputInfo = "Input: {timestamp}.bin files, TUM format gt poses file.\n"
                                 "Output: {index}.bin files, SemanticKITTI format gt poses file, calib.txt file.\n";
 
-  const std::string maintainerInfo = "Maintainer: Seoyeon Jang (9uantum01@kaist.ac.kr, Urban Robotics Lab), Revised: 2024/08/01";
+  const std::string maintainerInfo = "Maintainer: Seoyeon Jang (9uantum01@kaist.ac.kr, Urban Robotics Lab)";
 
   int titlePadding = (bannerWidth - title.length()) / 2;
   titlePadding = titlePadding < 0 ? 0 : titlePadding; // Ensure no negative padding

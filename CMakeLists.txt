@@ -28,9 +28,6 @@ link_directories(${PCL_LIBRARY_DIRS})
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS}")
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${OpenMP_C_FLAGS}")
 
-# Set the PCL directory (adjust as necessary)
-set(PCL_DIR "/usr/lib/x86_64-linux-gnu/cmake/pcl")
-
 # Source files
 set(SAVER_FILES src/pointSaver.cpp src/visualizer.cpp src/PointCloudProcessor.cpp src/utility.cpp src/BsplineSE3.cpp)
 set(MERGER_FILES src/pointMerger.cpp src/visualizer.cpp src/PointCloudProcessor.cpp src/utility.cpp src/BsplineSE3.cpp)

@@ -1,3 +1,6 @@
+# Legacy config kept for reference only.
+# The HeLiMOS toolbox reads config-helimos.yaml at runtime; edits here have no effect.
+
 Path:
   binPath: "/media/minwoo/My Passport/HeLiPR_Dataset/Roundabout02/LiDAR/Aeva/"
   trajPath: "/media/minwoo/My Passport/HeLiPR_Dataset/Roundabout02/LiDAR_GT/Aeva_gt.txt"

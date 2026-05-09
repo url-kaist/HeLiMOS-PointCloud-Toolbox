@@ -53,7 +53,7 @@ public:
     int accumulatedStep = 1;     // number of pointclouds to skip before accumulating (default: 1, >= 1)
     bool downSampleFlag = true;  // downsample pointclouds before processing (default: true)
     float downSampleVoxelSize = 0.4f; // downsample size (m) (default: 0.4f)
-    int downsamplePointSize: 8192;   // downsample point size (default: 8192, > 0)
+    int downsamplePointSize = 8192;   // downsample point size (default: 8192, > 0)
     bool normalizeFlag = true;   // normalize pointclouds  (default: true)
     std::string saveAs = "bin";       // save as bin or pcd (default: bin)
     std::string saveName = "Index";   // save name (default: Index)

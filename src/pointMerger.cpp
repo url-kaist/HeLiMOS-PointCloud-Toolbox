@@ -16,48 +16,11 @@ int main(int argc, char **argv)
     PointCloudProcessor AevaProcessor(config, 3);
     AevaProcessor.loadTrajectoryAndPoses();
 
-    const auto &ts_o = OusterProcessor.timestamp_lists_;
-    const auto &ts_v = VelodyneProcessor.timestamp_lists_;
-    const auto &ts_a  = AviaProcessor.timestamp_lists_;
-    const auto &ts_e = AevaProcessor.timestamp_lists_;
-
-    std::cout << std::fixed << OusterProcessor.timestamp_lists_[0] << std::endl;
-    std::cout << VelodyneProcessor.timestamp_lists_[0] << std::endl;
-    std::cout << AviaProcessor.timestamp_lists_[0] << std::endl;
-    std::cout << AevaProcessor.timestamp_lists_[0] << std::endl;
-
-
-    auto isDifferenceWithin = [](long long a, long long b, double diff_in_sec) {
-      auto diff = static_cast<double>(std::abs(a - b)) / 1e9;
-      return std::abs(diff) <= diff_in_sec;
-    };
-
-    auto findMinMaxSize = [](const std::vector<long long> &ts_o,
-                           const std::vector<long long> &ts_v,
-                           const std::vector<long long> &ts_a,
-                           const std::vector<long long> &ts_e) {
-      size_t minSize = std::min({ts_o.size(), ts_v.size(), ts_a.size(), ts_e.size()});
-      size_t maxSize = std::max({ts_o.size(), ts_v.size(), ts_a.size(), ts_e.size()});
-
-      return std::make_tuple(minSize, maxSize);
-  };
-
-  if (ts_o[0] < ts_v[0] && ts_o[0] < ts_a[0] && ts_o[0] < ts_e[0]) {
-    std::cout << std::fixed << "Check Ouster comes first!" << std::endl;
-  } else { std::runtime_error("Currently, only KAIST05 is supported while strongly assuming that the Ouster comes first"); }
-
-  double diff_in_sec = 0.08; 
-
-  const auto &[minSize, maxSize] = findMinMaxSize(ts_o, ts_v, ts_a, ts_e);
-
-  for (int i = 0; i < minSize; ++i) {
-    if (isDifferenceWithin(ts_o[i], ts_v[i], diff_in_sec) && isDifferenceWithin(ts_o[i], ts_a[i], diff_in_sec)
-      && isDifferenceWithin(ts_o[i], ts_e[i], diff_in_sec)) {
-      continue;
-    } else {
-      std::runtime_error("Something's wrong. Timestamp is not matched :(");
-    }
-  }
+  const auto [minSize, maxSize] = validateAndAlignTimestamps(
+      OusterProcessor.timestamp_lists_,
+      VelodyneProcessor.timestamp_lists_,
+      AviaProcessor.timestamp_lists_,
+      AevaProcessor.timestamp_lists_);
 
   std::string saveAs = config["Save"]["saveAs"].as<std::string>();
   std::string mergedSavePath = config["Path"]["savePath"].as<std::string>() + "Merged/";

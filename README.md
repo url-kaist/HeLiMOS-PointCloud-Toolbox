@@ -19,7 +19,11 @@
   <p align="center"><img src=image/overview.png alt="animated" /></p>
 
   [The HeLiMOS pointcloud toolbox](https://urobot.kaist.ac.kr/) is a data processing software for moving object segmentation (MOS) in the HeLiPR dataset.<br>It includes an effective merging-and-splitting-based approach ((a) and (g) in the upper figure) for labeling four heterogeneous LiDAR sensors.
+
+  <p><strong><em>Data processing software for moving object segmentation (MOS) in the HeLiPR dataset.</em></strong></p>
 </div>
+
+______________________________________________________________________
 
 ## :package: Installation
 What we need are just minimal dependencies.
@@ -29,18 +33,18 @@ sudo apt-get install g++ build-essential libpcl-dev libeigen3-dev python3-pip py
 ```
 
 
-Next, clone and compile the HeLiPR-Pointcloud-Toolbox repository using git as follows:
+Next, clone and compile the HeLiMOS-PointCloud-Toolbox repository using git as follows:
 
 ```bash
 git clone https://github.com/url-kaist/HeLiMOS-PointCloud-Toolbox.git
-cd HeLiMOS-Pointcloud-Toolbox
+cd HeLiMOS-PointCloud-Toolbox
 mkdir build && cd build
 cmake .. -DCMAKE_BUILD_TYPE=Release && make -j 16 
 ```
 
----
+______________________________________________________________________
 
-## 🔍 Overview 
+## :mag: Overview 
 
 This toolbox consists of three modules: `helimos_saver`, `helimos_merger`, and `helimos_propagator`!
 
@@ -134,7 +138,7 @@ This toolbox consists of three modules: `helimos_saver`, `helimos_merger`, and `
 
 
 
----
+______________________________________________________________________
 
 ## :wrench: Usage
 
@@ -369,8 +373,9 @@ ${savePath} # e.g., /path/to/HeLiMOS/sequence
 ```
 
 
----
-## License and Citation
+______________________________________________________________________
+
+## :page_facing_up: License and Citation
 
 ```bibtex
 @misc{lim2024helimos,
@@ -392,10 +397,10 @@ ${savePath} # e.g., /path/to/HeLiMOS/sequence
 }
 ```
 
-## Copyright Notice
+## :copyright: Copyright Notice
 All point clouds are copyrighted by SNU RPM Labs and MOS labels are copyrighted by KAIST Urban Robotics Lab, and those are distributed under the Creative Commons Attribution-NonCommercial-ShareAlike 4.0 License. This license requires proper attribution to the author for any use, prohibits commercial usage, and mandates that derivative works be licensed similarly.
 
-## Maintainer
+## :busts_in_silhouette: Maintainer
 
 - Seoyeon Jang (9uantum01 `at` kaist `dot` ac `dot` kr)
 - Hyungtae Lim (shapelim `at` mit `dot` edu)
